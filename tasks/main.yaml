@@ -1,0 +1,74 @@
+---
+
+- name: Test distribution
+  assert:
+    that: >
+      ansible_facts.os_family == 'RedHat' or
+      ansible_facts.os_family == 'Debian'
+
+- name: Create Curator YUM repo file
+  yum_repository:
+    name: elastic
+    description: Curator YUM repo
+    baseurl: "{{ elasticsearch_curator_yum_repo_url }}"
+    gpgkey: "{{ elasticsearch_curator_yum_repo_key }}"
+  args: "{{ elasticsearch_curator_yum_repo_params }}"
+  when: >
+    ansible_facts.os_family == 'RedHat'
+  tags:
+    - elasticsearch_curator_pkg
+
+- name: Install Curator GPG key
+  apt_key:
+    url: "{{ elasticsearch_curator_apt_repo_key }}"
+  when: >
+    ansible_facts.os_family == 'Debian'
+  tags:
+    - elasticsearch_curator_pkg
+    - elasticsearch_curator_aptrepo
+
+- name: Create Curator APT repo file
+  apt_repository:
+    repo: "{{ elasticsearch_curator_apt_repo_string }}"
+  args: "{{ elasticsearch_curator_apt_repo_params }}"
+  when: >
+    ansible_facts.os_family == 'Debian'
+  tags:
+    - elasticsearch_curator_pkg
+    - elasticsearch_curator_aptrepo
+
+- name: Install Curator package
+  package:
+    name: "{{ elasticsearch_curator_pkg }}"
+  tags:
+    - elasticsearch_curator_pkg
+
+- name: Configure Curator
+  template:
+    src: curator.yaml.j2
+    dest: "{{ elasticsearch_curator_config_file }}"
+  tags:
+    - elasticsearch_curator_config
+
+- name: Create Curator action file
+  template:
+    src: action.yaml.j2
+    dest: "{{ elasticsearch_curator_actions_path ~ '/' ~ item.key ~ '.yaml' }}"
+  with_dict: "{{ elasticsearch_curator_actions }}"
+  tags:
+    - elasticsearch_curator_config
+
+- name: Create Curator cron jobs
+  cron:
+    name: "{{ item.name }}"
+    minute: "{{ item.minute | default(omit) }}"
+    hour: "{{ item.hour | default(omit) }}"
+    day: "{{ item.day | default(omit) }}"
+    month: "{{ item.month | default(omit) }}"
+    weekday: "{{ item.weekday | default(omit) }}"
+    job: "{{ item.job }}"
+    user: "{{ item.user | default(omit) }}"
+    state: "{{ item.state | default(omit) }}"
+  loop: "{{ elasticsearch_curator_crons }}"
+  tags:
+    - elasticsearch_curator_config

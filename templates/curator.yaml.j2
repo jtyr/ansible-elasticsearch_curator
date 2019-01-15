@@ -1,0 +1,5 @@
+---
+
+{{ ansible_managed | comment }}
+
+{{ elasticsearch_curator_config | encode_yaml(convert_bools=true, convert_nums=true) }}

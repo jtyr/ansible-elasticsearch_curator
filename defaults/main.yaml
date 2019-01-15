@@ -1,0 +1,67 @@
+---
+
+# YUM repo URL
+elasticsearch_curator_yum_repo_url: https://packages.elastic.co/curator/5/centos/{{ ansible_facts.distribution_major_version }}
+
+# YUM repo GPG key
+elasticsearch_curator_yum_repo_key: "{{ elastic_yum_repo_key | default('https://packages.elastic.co/GPG-KEY-elasticsearch') }}"
+
+# Additional YUM repo parameters
+elasticsearch_curator_yum_repo_params: "{{ elastic_yum_repo_params | default({}) }}"
+
+# GPG key for the APT repo
+elasticsearch_curator_apt_repo_key: "{{ elastic_apt_repo_key | default('https://artifacts.elastic.co/GPG-KEY-elasticsearch') }}"
+
+# APT repo string
+elasticsearch_curator_apt_repo_string: "{{ elastic_apt_repo_string | default('deb [arch=amd64] https://packages.elastic.co/curator/5/debian stable main') }}"
+
+# Additional APT repo parameters
+elasticsearch_curator_apt_repo_params: "{{ elastic_apt_repo_params | default({}) }}"
+
+# Package to be installed (explicit version can be specified here)
+elasticsearch_curator_pkg: elasticsearch-curator
+
+
+# Path to the config file
+elasticsearch_curator_config_file: /opt/elasticsearch-curator/curator.yaml
+
+# Values of the default options of the client section
+elasticsearch_curator_config_client_hosts:
+  - 127.0.0.1
+elasticsearch_curator_config_client_port: 9200
+
+# Default options of the client section
+elasticsearch_curator_config_client__default:
+  hosts: "{{ elasticsearch_curator_config_client_hosts }}"
+  port: "{{ elasticsearch_curator_config_client_port }}"
+
+# Custom options of the client section
+elasticsearch_curator_config_client__custom: {}
+
+# Final client section of the config file
+elasticsearch_curator_config_client: "{{
+  elasticsearch_curator_config_client__default | combine(
+  elasticsearch_curator_config_client__custom) }}"
+
+# Default options of the config
+elasticsearch_curator_config__default:
+  client: "{{ elasticsearch_curator_config_client }}"
+
+# Custom options of the config
+elasticsearch_curator_config__custom: {}
+
+# Final config
+elasticsearch_curator_config: "{{
+  elasticsearch_curator_config__default | combine(
+  elasticsearch_curator_config__custom) }}"
+
+
+# Default path for the action files
+elasticsearch_curator_actions_path: /opt/elasticsearch-curator
+
+# Action files definitions (see README.md for examples)
+elasticsearch_curator_actions: {}
+
+
+# List of cronjobs to run Curator (see README.md for examples)
+elasticsearch_curator_crons: []
