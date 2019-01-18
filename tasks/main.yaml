@@ -8,8 +8,8 @@
 
 - name: Create Curator YUM repo file
   yum_repository:
-    name: elastic
-    description: Curator YUM repo
+    name: elasticsearch_curator
+    description: Elasticsearch Curator YUM repo
     baseurl: "{{ elasticsearch_curator_yum_repo_url }}"
     gpgkey: "{{ elasticsearch_curator_yum_repo_key }}"
   args: "{{ elasticsearch_curator_yum_repo_params }}"
